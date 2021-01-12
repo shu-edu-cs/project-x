@@ -20,7 +20,6 @@ def main():
 
 
 
-
 if __name__ == '__main__':
     am = admin.sites.AdminSite
     am.site_header = "上大共享图书"
