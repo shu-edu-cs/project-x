@@ -59,7 +59,9 @@ class BookAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         if not request.user.is_superuser:
-            return Book.objects.filter(status=0)
+            return Book.objects.filter(status=0).all()
+        else:
+            return Book.objects.all()
 
     def save_model(self, request, obj, form, change):
         if getattr(obj, 'create_user', None) is None:
