@@ -50,36 +50,6 @@ class MyBook(Book):
         verbose_name_plural = verbose_name
 
 
-@admin.register(MyBook)
-class MyBookAdmin(admin.ModelAdmin):
-    list_filter = ('status', )
-    search_fields = ('book_name', 'author')
-    list_display = ('book_name', 'author', 'translator', 'status')
-    fields = ('book_name', 'book_isbn', 'public_name', 'publish_year', 'author', 'translator', 'edition_order',
-              'page_count',  'status', 'remark')
-    list_per_page = 20
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def save_model(self, request, obj, form, change):
-        if getattr(obj, 'create_user', None) is None:
-            obj.create_user = request.user
-        obj.save()
-
-    def get_queryset(self, request):
-        return Book.objects.filter(create_user=request.user)
-
-    def custom_delete(self, request):
-        pass
-
-    custom_delete.short_description = '删除'
-    custom_delete.icon = 'fas el-icon-delete'
-    custom_delete.type = 'danger'
-
-    actions = ['custom_delete']
-
-
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
     list_filter = ('status', 'create_user')
@@ -89,11 +59,20 @@ class BookAdmin(admin.ModelAdmin):
               'page_count',  'status', 'remark')
     list_per_page = 20
 
-    # def has_delete_permission(self, request, obj=None):
-    #     if request.user.is_superuser:
-    #         return True
-    #     else:
-    #         return False
+    def has_add_permission(self, request):
+        """
+        禁用添加按钮
+        """
+        if request.user.is_superuser:
+            return True
+        else:
+            return False
+
+    def has_delete_permission(self, request, obj=None):
+        if request.user.is_superuser or (obj and obj.create_user == request.user):
+            return True
+        else:
+            return False
 
     # 重写编辑页, 继承父类方法
     # def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
@@ -134,4 +113,23 @@ class BookAdmin(admin.ModelAdmin):
     borrow_book.type = 'success'
 
     actions = ['borrow_book']
+
+
+@admin.register(MyBook)
+class MyBookAdmin(admin.ModelAdmin):
+    list_filter = ('status', )
+    search_fields = ('book_name', 'author')
+    List_display_links = None
+    list_display = ('book_name', 'author', 'translator', 'status')
+    fields = ('book_name', 'book_isbn', 'public_name', 'publish_year', 'author', 'translator', 'edition_order',
+              'page_count',  'status', 'remark')
+    list_per_page = 20
+
+    def save_model(self, request, obj, form, change):
+        if getattr(obj, 'create_user', None) is None:
+            obj.create_user = request.user
+        obj.save()
+
+    def get_queryset(self, request):
+        return Book.objects.filter(create_user=request.user)
 
