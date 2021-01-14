@@ -60,7 +60,7 @@ class MyBookAdmin(admin.ModelAdmin):
     list_per_page = 20
 
     def has_delete_permission(self, request, obj=None):
-        return True
+        return False
 
     def save_model(self, request, obj, form, change):
         if getattr(obj, 'create_user', None) is None:
@@ -69,6 +69,15 @@ class MyBookAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return Book.objects.filter(create_user=request.user)
+
+    def custom_delete(self, request):
+        pass
+
+    custom_delete.short_description = '删除'
+    custom_delete.icon = 'fas el-icon-delete'
+    custom_delete.type = 'danger'
+
+    actions = ['custom_delete']
 
 
 @admin.register(Book)
@@ -80,17 +89,31 @@ class BookAdmin(admin.ModelAdmin):
               'page_count',  'status', 'remark')
     list_per_page = 20
 
-    def has_delete_permission(self, request, obj=None):
-        if request.user.is_superuser:
-            return True
-        else:
-            return False
+    # def has_delete_permission(self, request, obj=None):
+    #     if request.user.is_superuser:
+    #         return True
+    #     else:
+    #         return False
+
+    # 重写编辑页, 继承父类方法
+    # def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
+    #     def has_delete_permission(self, request, obj=None):
+    #         return False
+    #     self.has_delete_permission = has_delete_permission
+    #     return super(BookAdmin, self).changeform_view(request, object_id, form_url=form_url, extra_context=extra_context)
 
     def get_list_filter(self, request):
         if request.user.is_superuser:
             return 'status', 'create_user'
         else:
             return 'create_user',
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if not request.user.is_superuser:
+            if 'delete_selected' in actions:
+                del actions['delete_selected']
+        return actions
 
     def get_queryset(self, request):
         if not request.user.is_superuser:
