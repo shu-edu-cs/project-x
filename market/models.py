@@ -9,7 +9,7 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
-    create_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, default=None, verbose_name='创建用户')
+    create_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, default=None, null=True, verbose_name='创建用户')
     create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     update_time = models.DateTimeField(auto_now=datetime.now(), verbose_name='更新时间')
 

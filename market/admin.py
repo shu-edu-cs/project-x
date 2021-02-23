@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.http import JsonResponse
 from simpleui.admin import AjaxAdmin
 from market.models import Book, MyBook
+from borrow.models import BorrowBook
 from django.db.models import Q
 
 
@@ -70,12 +71,19 @@ class BookAdmin(AjaxAdmin):
         if not post.get('_selected'):
             return JsonResponse(data={
                 'status': 'error',
-                'msg': '请先选中数据！'
+                'msg': '请选择需要借的书！'
             })
         else:
+            for book in queryset:
+                if book.status == 1:
+                    return JsonResponse(data={
+                        'status': 'error',
+                        'msg': f'《{book.book_name}》已出借，请重新选择。'
+                    })
+
             return JsonResponse(data={
                 'status': 'success',
-                'msg': '处理成功！'
+                'msg': '申请成功，等待图书所有人处理！'
             })
 
     borrow_book.short_description = '借书'
