@@ -18,10 +18,10 @@ class BorrowBook(BaseModel):
     borrow_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None, verbose_name='借书人', related_name='borrow_user')
     qq = models.CharField(null=True, blank=True, max_length=32, verbose_name='QQ')
     wechat = models.CharField(null=True, blank=True, max_length=32, verbose_name='微信')
-    email = models.CharField(null=True,blank=True, max_length=64, verbose_name='Email')
+    email = models.CharField(null=True, blank=True, max_length=64, verbose_name='Email')
     remark = models.CharField(null=True, blank=True, max_length=256, verbose_name='备注')
     return_date = models.DateField(null=False, blank=False, verbose_name='预计还书时间')
-    real_return_date = models.DateField(null=False, blank=False, verbose_name='实际还书时间')
+    real_return_date = models.DateField(blank=False, null=True, verbose_name='实际还书时间')
     status = models.SmallIntegerField(default=0, choices=status_choices, verbose_name='状态')
 
 

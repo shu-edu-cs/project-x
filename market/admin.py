@@ -4,6 +4,7 @@ from simpleui.admin import AjaxAdmin
 from market.models import Book, MyBook
 from borrow.models import BorrowBook
 from django.db.models import Q
+from datetime import datetime
 
 
 @admin.register(Book)
@@ -74,13 +75,29 @@ class BookAdmin(AjaxAdmin):
                 'msg': '请选择需要借的书！'
             })
         else:
+            GMT_FORMAT = '%a %b %d %Y %H:%M:%S GMT+0800 (中国标准时间)'
+            return_date = datetime.strptime(post.get('return_date'), GMT_FORMAT)
+            if (return_date - datetime.now()).total_seconds() <= 0:
+                return JsonResponse(data={
+                    'status': 'error',
+                    'msg': f'还书时间不能早于当前时间。'
+                })
             for book in queryset:
                 if book.status == 1:
                     return JsonResponse(data={
                         'status': 'error',
                         'msg': f'《{book.book_name}》已出借，请重新选择。'
                     })
-
+                borrow_book_exists = BorrowBook.objects.filter(book=book,  borrow_user=request.user).first()
+                if borrow_book_exists:
+                    return JsonResponse(data={
+                        'status': 'error',
+                        'msg': f'您已提交《{book.book_name}》的借书请求，不要重复申请。'
+                    })
+                borrow_book = BorrowBook(book=book, lend_user=book.create_user, borrow_user=request.user,
+                                         qq=post.get('qq'), wechat=post.get('wechat'), remark=post.get('remark'),
+                                         return_date=return_date)
+                borrow_book.save()
             return JsonResponse(data={
                 'status': 'success',
                 'msg': '申请成功，等待图书所有人处理！'
@@ -153,7 +170,7 @@ class BookAdmin(AjaxAdmin):
             },
             {
                 'type': 'date',
-                'key': 'date',
+                'key': 'return_date',
                 'label': '还书时间',
                 'require': True
             },

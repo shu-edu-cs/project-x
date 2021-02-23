@@ -33,8 +33,7 @@ class Book(BaseModel):
     status_type = ((0, '待出借'), (1, '已出借'))
     status = models.SmallIntegerField(null=False, verbose_name='状态', choices=status_type)
     remark = models.TextField(max_length=512, null=True, blank=True, verbose_name='备注')
-    create_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None,
-                                    verbose_name='共享人')
+    create_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None, verbose_name='共享人')
 
     def __str__(self):
         return self.book_name
