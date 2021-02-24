@@ -47,3 +47,7 @@ class MyBook(Book):
         verbose_name_plural = verbose_name
 
 
+from rest_framework import serializers
+class BookSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Book

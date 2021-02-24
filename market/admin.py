@@ -83,6 +83,12 @@ class BookAdmin(AjaxAdmin):
                     'msg': f'还书时间不能早于当前时间。'
                 })
             for book in queryset:
+                if book.create_user == request.user:
+
+                    return JsonResponse(data={
+                        'status': 'error',
+                        'msg': f'您不能向自己借书《{book.book_name}》。'
+                    })
                 if book.status == 1:
                     return JsonResponse(data={
                         'status': 'error',

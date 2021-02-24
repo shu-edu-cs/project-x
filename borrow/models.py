@@ -8,7 +8,7 @@ class BorrowBook(BaseModel):
 
     class Meta:
         db_table = 'borrow_book'
-        verbose_name = '借书记录'
+        verbose_name = '出借'
         verbose_name_plural = verbose_name
 
     status_choices = ((0, '申请借书'), (1, '拒绝申请'), (2, '等待归还'), (3, '已经归还'))
@@ -23,6 +23,22 @@ class BorrowBook(BaseModel):
     return_date = models.DateField(null=False, blank=False, verbose_name='预计还书时间')
     real_return_date = models.DateField(blank=False, null=True, verbose_name='实际还书时间')
     status = models.SmallIntegerField(default=0, choices=status_choices, verbose_name='状态')
+
+
+class LendBook(BorrowBook):
+
+    class Meta:
+        proxy = True
+        verbose_name = '借书'
+        verbose_name_plural = verbose_name
+
+
+# class BorrowBook(BorrowBook):
+#
+#     class Meta:
+#         proxy = True
+#         verbose_name = '借书'
+#         verbose_name_plural = verbose_name
 
 
 class BorrowComment(BaseModel):
