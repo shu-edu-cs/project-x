@@ -142,3 +142,13 @@ SIMPLEUI_INDEX = 'http://0.0.0.0:8000/admin'
 SIMPLEUI_HOME_INFO = False
 SIMPLEUI_ANALYSIS = False
 SIMPLEUI_STATIC_OFFLINE = True
+
+
+SIMPLEUI_ICON = {
+    '图书市场': 'fas fa-atlas',
+    '共享图书': 'fas fa-book',
+    '我的共享': 'fas fa-book-open',
+    '图书借还': 'fas fa-book-reader',
+    '借书': 'fas fa-handshake',
+    '出借': 'fas fa-hand-holding-heart'
+}
