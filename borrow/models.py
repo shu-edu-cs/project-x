@@ -11,7 +11,7 @@ class BorrowBook(BaseModel):
         verbose_name = '出借'
         verbose_name_plural = verbose_name
 
-    status_choices = ((0, '申请借书'), (1, '拒绝申请'), (2, '等待归还'), (3, '已经归还'))
+    status_choices = ((0, '申请借书'), (1, '拒绝申请'), (2, '等待确认借书'), (3, '等待归还'), (4, '等待确认归还'), (5, '已经归还'))
 
     book = models.ForeignKey(Book, on_delete=models.CASCADE, verbose_name='书籍')
     lend_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None, verbose_name='出借人', related_name='lend_user')

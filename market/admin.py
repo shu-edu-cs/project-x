@@ -94,7 +94,7 @@ class BookAdmin(AjaxAdmin):
                         'status': 'error',
                         'msg': f'《{book.book_name}》已出借，请重新选择。'
                     })
-                borrow_book_exists = BorrowBook.objects.filter(book=book,  borrow_user=request.user).first()
+                borrow_book_exists = BorrowBook.objects.filter(book=book, borrow_user=request.user, status__in=[0, 2, 3, 4]).first()
                 if borrow_book_exists:
                     return JsonResponse(data={
                         'status': 'error',
