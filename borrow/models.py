@@ -24,6 +24,9 @@ class BorrowBook(BaseModel):
     real_return_date = models.DateField(blank=False, null=True, verbose_name='实际还书时间')
     status = models.SmallIntegerField(default=0, choices=status_choices, verbose_name='状态')
 
+    def __str__(self):
+        return self.book.book_name
+
 
 class LendBook(BorrowBook):
 
@@ -45,7 +48,7 @@ class BorrowComment(BaseModel):
 
     class Meta:
         db_table = 'borrow_comment'
-        verbose_name = '借书评价'
+        verbose_name = '出借评价'
         verbose_name_plural = verbose_name
 
     borrow = models.ForeignKey('BorrowBook', on_delete=models.CASCADE, verbose_name='借书记录')
@@ -57,7 +60,7 @@ class LendComment(BaseModel):
 
     class Meta:
         db_table = 'lend_comment'
-        verbose_name = '出借评价'
+        verbose_name = '借书评价'
         verbose_name_plural = verbose_name
 
     borrow = models.ForeignKey('BorrowBook', on_delete=models.CASCADE, verbose_name='借书记录')

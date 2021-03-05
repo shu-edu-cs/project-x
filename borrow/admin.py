@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import BorrowBook, LendBook
+from .models import BorrowBook, LendBook, BorrowComment, LendComment
 from simpleui.admin import AjaxAdmin
 from django.http import JsonResponse
 from datetime import datetime
@@ -53,7 +53,7 @@ class BorrowBookAdmin(AjaxAdmin):
         # 弹出层中的输入框配置
 
         # 这里指定对话框的标题
-        'title': '出借',
+        'title': '确认出借',
         # 提示信息
         'tips': '记得和借书人约定一个取书方式哦！',
         # 确认按钮显示文本
@@ -116,7 +116,7 @@ class BorrowBookAdmin(AjaxAdmin):
         # ]
     }
 
-    lend_book.short_description = '出借'
+    lend_book.short_description = '确认出借'
     lend_book.type = 'success'
     lend_book.icon = 'el-icon-s-promotion'
 
@@ -167,12 +167,80 @@ class BorrowBookAdmin(AjaxAdmin):
         # 表单中 label的宽度，对应element-ui的 label-width，默认80px
         'labelWidth': "80px"
     }
-
     return_book.short_description = '确认归还'
     return_book.type = 'success'
     return_book.icon = 'el-icon-s-promotion'
 
-    actions = ['lend_book', 'return_book']
+    def borrow_comment(self, request, queryset):
+        # 这里的queryset 会有数据过滤，只包含选中的数据
+        post = request.POST
+        # 这里获取到数据后，可以做些业务处理
+        # post中的_action 是方法名
+        # post中 _selected 是选中的数据，逗号分割
+        if not post.get('_selected'):
+            return JsonResponse(data={
+                'status': 'error',
+                'msg': '选择需要评价的记录'
+            })
+        else:
+            for _borrow_book in queryset:
+                if _borrow_book.status != 5:
+                    return JsonResponse(data={
+                        'status': 'error',
+                        'msg': f'《{_borrow_book.book.book_name}》需要等待对方还书后才可评价。'
+                    })
+                elif BorrowComment.objects.filter(borrow=_borrow_book).first() is not None:
+                    return JsonResponse(data={
+                        'status': 'error',
+                        'msg': f'《{_borrow_book.book.book_name}》已经评价过了。'
+                    })
+                _borrow_comment = BorrowComment(borrow=_borrow_book, star=post['star'], comment=post['comment'])
+                _borrow_comment.save()
+            return JsonResponse(data={
+                'status': 'success',
+                'msg': '评价已提交。'
+            })
+
+    borrow_comment.layer = {
+        # 弹出层中的输入框配置
+
+        # 这里指定对话框的标题
+        'title': '借书评价',
+        # 提示信息
+        'tips': '你对借书人的借书行为满意吗？给个评价吧。',
+        # 确认按钮显示文本
+        'confirm_button': '发布',
+        # 取消按钮显示文本
+        'cancel_button': '取消',
+
+        # 弹出层对话框的宽度，默认50%
+        'width': '40%',
+
+        # 表单中 label的宽度，对应element-ui的 label-width，默认80px
+        'labelWidth': "80px",
+        'params': [
+            {
+                'type': 'rate',
+                'key': 'star',
+                'label': '等级'
+            },
+            {
+                # 这里的type 对应el-input的原生input属性，默认为input
+                'type': 'input',
+                # key 对应post参数中的key
+                'key': 'comment',
+                # 显示的文本
+                'label': '评价',
+                # 为空校验，默认为False
+                'require': True
+            }
+        ]
+    }
+    borrow_comment.short_description = '借书评价'
+    borrow_comment.type = 'success'
+    borrow_comment.icon = 'el-icon-s-promotion'
+
+    actions = ['lend_book', 'return_book', 'borrow_comment']
 
 
 @admin.register(LendBook)
@@ -218,7 +286,7 @@ class LendBookAdmin(AjaxAdmin):
                 'msg': '申请成功，等待出借人确认图书已归还！'
             })
 
-    return_book.short_description = '还书'
+    return_book.short_description = '开始还书'
     return_book.type = 'success'
     return_book.icon = 'el-icon-s-promotion'
 
@@ -291,4 +359,121 @@ class LendBookAdmin(AjaxAdmin):
         'labelWidth': "80px"
     }
 
-    actions = ['borrow_book', 'return_book']
+    def lend_comment(self, request, queryset):
+        # 这里的queryset 会有数据过滤，只包含选中的数据
+        post = request.POST
+        # 这里获取到数据后，可以做些业务处理
+        # post中的_action 是方法名
+        # post中 _selected 是选中的数据，逗号分割
+        if not post.get('_selected'):
+            return JsonResponse(data={
+                'status': 'error',
+                'msg': '选择需要评价的记录'
+            })
+        else:
+            for _borrow_book in queryset:
+                if _borrow_book.status != 5:
+                    return JsonResponse(data={
+                        'status': 'error',
+                        'msg': f'《{_borrow_book.book.book_name}》需要等待出借人确认书已归还后才可评价。'
+                    })
+                elif LendComment.objects.filter(borrow=_borrow_book).first() is not None:
+                    return JsonResponse(data={
+                        'status': 'error',
+                        'msg': f'《{_borrow_book.book.book_name}》已经评价过了。'
+                    })
+                _lend_comment = LendComment(borrow=_borrow_book, star=post['star'], comment=post['comment'])
+                _lend_comment.save()
+            return JsonResponse(data={
+                'status': 'success',
+                'msg': '评价已提交。'
+            })
+
+    lend_comment.layer = {
+        # 弹出层中的输入框配置
+
+        # 这里指定对话框的标题
+        'title': '借书评价',
+        # 提示信息
+        'tips': '你对出借人借给你的书满意吗？给个评价吧。',
+        # 确认按钮显示文本
+        'confirm_button': '发布',
+        # 取消按钮显示文本
+        'cancel_button': '取消',
+
+        # 弹出层对话框的宽度，默认50%
+        'width': '40%',
+
+        # 表单中 label的宽度，对应element-ui的 label-width，默认80px
+        'labelWidth': "80px",
+        'params': [
+            {
+                'type': 'rate',
+                'key': 'star',
+                'label': '等级'
+            },
+            {
+                # 这里的type 对应el-input的原生input属性，默认为input
+                'type': 'input',
+                # key 对应post参数中的key
+                'key': 'comment',
+                # 显示的文本
+                'label': '评价',
+                # 为空校验，默认为False
+                'require': True
+            }
+        ]
+    }
+    lend_comment.short_description = '借书评价'
+    lend_comment.type = 'success'
+    lend_comment.icon = 'el-icon-s-promotion'
+
+    actions = ['borrow_book', 'return_book', 'lend_comment']
+
+
+@admin.register(BorrowComment)
+class BorrowCommentAdmin(AjaxAdmin):
+    search_fields = ('comment', )
+    list_display = ('borrow', 'lend_user', 'borrow_user', 'star', 'comment')
+    list_per_page = 20
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def lend_user(self, obj):
+        return obj.borrow.lend_user
+    lend_user.short_description = "出借人"
+
+    def borrow_user(self, obj):
+        return obj.borrow.borrow_user
+    borrow_user.short_description = "借书人"
+
+
+@admin.register(LendComment)
+class LendCommentAdmin(AjaxAdmin):
+    search_fields = ('comment', )
+    list_display = ('borrow', 'lend_user', 'borrow_user', 'star', 'comment')
+    list_per_page = 20
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def lend_user(self, obj):
+        return obj.borrow.lend_user
+    lend_user.short_description = "出借人"
+
+    def borrow_user(self, obj):
+        return obj.borrow.borrow_user
+    borrow_user.short_description = "借书人"
