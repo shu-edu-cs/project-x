@@ -12,7 +12,7 @@ class BookAdmin(AjaxAdmin):
     list_filter = ('status', 'create_user')
     search_fields = ('book_name', 'author')
     list_display = ('book_name', 'author', 'translator', 'status', 'create_user')
-    fields = ('book_name', 'book_isbn', 'public_name', 'publish_year', 'author', 'translator', 'edition_order',
+    fields = ('book_name', 'book_isbn', 'book_image', 'public_name', 'publish_year', 'author', 'translator', 'edition_order',
               'page_count',  'status', 'remark')
     list_per_page = 20
 

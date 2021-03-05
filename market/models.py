@@ -23,6 +23,7 @@ class Book(BaseModel):
 
     book_num = models.CharField(max_length=128, default=uuid.uuid4().hex, null=False, blank=False, verbose_name='书号')
     book_name = models.CharField(max_length=128, null=False, blank=False, verbose_name='书名')
+    book_image = models.ImageField(upload_to='static/book_image', verbose_name='图片', null=True, blank=True)
     book_isbn = models.CharField(max_length=128, null=False, blank=False, verbose_name='ISBN')
     public_name = models.CharField(max_length=256, null=True, blank=True, verbose_name='出版社名称')
     publish_year = models.CharField(max_length=16, null=True, blank=True, verbose_name='出版年份')
