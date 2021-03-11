@@ -46,9 +46,3 @@ class MyBook(Book):
         proxy = True
         verbose_name = '我的共享'
         verbose_name_plural = verbose_name
-
-
-from rest_framework import serializers
-class BookSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Book
