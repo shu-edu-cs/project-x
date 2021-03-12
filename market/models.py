@@ -46,3 +46,28 @@ class MyBook(Book):
         proxy = True
         verbose_name = '我的共享'
         verbose_name_plural = verbose_name
+
+
+class BookComment(models.Model):
+
+    class Meta:
+        db_table = 'book_comment'
+        verbose_name = '图书评论'
+        verbose_name_plural = verbose_name
+
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, verbose_name='书籍')
+    ip_address = models.CharField(max_length=128, null=False, blank=False, verbose_name='IP地址')
+    nick_name = models.CharField(max_length=128, null=False, blank=False, verbose_name='昵称')
+    comment_content = models.CharField(max_length=512, null=False, blank=False, verbose_name='评论内容')
+    create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+
+
+class SupportLog(models.Model):
+
+    class Meta:
+        db_table = 'support_log'
+        verbose_name = '点赞记录'
+        verbose_name_plural = verbose_name
+
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, verbose_name='书籍')
+    ip_address = models.CharField(max_length=128, null=False, blank=False, verbose_name='IP地址')

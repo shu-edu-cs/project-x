@@ -1,10 +1,10 @@
 from django.contrib import admin
 from django.http import JsonResponse
 from simpleui.admin import AjaxAdmin
-from market.models import Book, MyBook
 from borrow.models import BorrowBook
 from django.db.models import Q
 from datetime import datetime
+from market.models import Book, MyBook, BookComment, SupportLog
 
 
 @admin.register(Book)
@@ -207,3 +207,59 @@ class MyBookAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return Book.objects.filter(create_user=request.user)
+
+
+@admin.register(BookComment)
+class BookCommentAdmin(AjaxAdmin):
+    search_fields = ('book', 'ip_address', 'nick_name', 'comment_content')
+    list_display = ('book', 'ip_address', 'nick_name', 'comment_content', 'create_time')
+    fields = ('book', 'ip_address', 'nick_name', 'comment_content')
+    list_per_page = 20
+
+    def has_add_permission(self, request):
+        """
+        禁用添加按钮
+        """
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        if request.user.is_superuser or (obj and obj.create_user == request.user):
+            return True
+        else:
+            return False
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if not request.user.is_superuser:
+            if 'delete_selected' in actions:
+                del actions['delete_selected']
+        return actions
+
+
+@admin.register(SupportLog)
+class SupportLogAdmin(AjaxAdmin):
+    search_fields = ('book', 'ip_address')
+    list_display = ('book', 'ip_address')
+    list_per_page = 20
+
+    def has_add_permission(self, request):
+        """
+        禁用添加按钮
+        """
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        if request.user.is_superuser or (obj and obj.create_user == request.user):
+            return True
+        else:
+            return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if not request.user.is_superuser:
+            if 'delete_selected' in actions:
+                del actions['delete_selected']
+        return actions

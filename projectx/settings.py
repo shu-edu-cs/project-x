@@ -150,5 +150,6 @@ SIMPLEUI_ICON = {
     '我的共享': 'fas fa-book-open',
     '图书借还': 'fas fa-book-reader',
     '借书': 'fas fa-handshake',
-    '出借': 'fas fa-hand-holding-heart'
+    '出借': 'fas fa-hand-holding-heart',
+    '点赞记录': 'fas fa-thumbs-up'
 }
