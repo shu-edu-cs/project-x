@@ -1,10 +1,36 @@
 # 上大共享图书
 
-## 前言
-
-TODO
-
 ## 部署
+
+### 数据库
+
+在Linux下，使用命令安装MySQL
+
+```shell
+yum install mysql-server
+```
+
+启动MySQL访问
+
+```
+/etc/init.d/mysqld restart
+```
+
+进入MySQL
+
+```
+mysql
+```
+
+设置root用户密码
+
+```
+set password = password('root');
+```
+
+连接到MySQL后，创建名为ShareBook的数据库。
+
+执行光盘文件中的数据库SQL，可自动插入表结构和测试数据。
 
 ### 环境安装
 
@@ -37,6 +63,21 @@ pip install -r requirements.txt
 | PROJECT_X_USER | MySQL数据库账户 | root        |
 | PROJECT_X_PASS | MySQL数据库密码 | password123 |
 | PROJECT_X_HOST | MySQL服务器地址 | 127.0.0.0   |
+
+也可以修改配置文件 projectx/settings.py 的相关配置，将os.environ.get('PROJECT_X_USER')等从环境变量读取配置的地方，直接修改为数据库的连接配置即可。
+
+```python
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'sharebook',
+        'USER': os.environ.get('PROJECT_X_USER'),
+        'PASSWORD': os.environ.get('PROJECT_X_PASS'),
+        'HOST': os.environ.get('PROJECT_X_HOST'),
+        'PORT': '3306',
+    }
+}
+```
 
 ### 激活虚拟环境
 
